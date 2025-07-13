@@ -60,14 +60,20 @@ class display():
                 c = self.board[x][y]
                 c.draw()
 
-    def board_toggle(self, mouse_pos):
+    def board_toggle(self, mouse_pos, button):
         pos = math.floor(mouse_pos[0] / 10), math.floor(mouse_pos[1] / 10)
         if 0 < pos[0] < self.size-1 and 0 < pos[1] < self.size-1:
             with self.lock:
                 # Brush
-                for i in range(-1, 2, 1):
-                    self.board[pos[0]][pos[1]+i].on()
-                    self.board[pos[0]+i][pos[1]].on()
+                if button == 1:
+                    for i in range(-1, 2, 1):
+                        self.board[pos[0]][pos[1]+i].on()
+                        self.board[pos[0]+i][pos[1]].on()
+                elif button == 3:
+                    for i in range(-1, 2, 1):
+                        py.time.delay(2)
+                        self.board[pos[0]][pos[1]+i].off()
+                        self.board[pos[0]+i][pos[1]].off()
 
     def fall_sand(self):
         while self.running:
@@ -108,18 +114,23 @@ def main():
 
     mouse_down = False
     running = True
+    button = None
     while running:
         screen.fill((0, 0, 0))
         for event in py.event.get():
             if event.type == py.QUIT:
                 running = False
             elif event.type == py.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    button = 1
+                elif event.button == 3:
+                    button = 3
                 mouse_down = True
             elif event.type == py.MOUSEBUTTONUP:
                 mouse_down = False
         if mouse_down:
             mouse_pos = py.mouse.get_pos()
-            board.board_toggle(mouse_pos)
+            board.board_toggle(mouse_pos, button)
 
         board.draw()
 
